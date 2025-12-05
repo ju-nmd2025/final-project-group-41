@@ -1,5 +1,5 @@
 export let platform = {
-    x: 250,
+    x: 160,
     y: 230,
     w: 80,
     h: 20,
