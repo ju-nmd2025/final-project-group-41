@@ -1,0 +1,19 @@
+export class StartScreen {
+    show() {
+        push();
+        fill("white");
+        textAlign(CENTER);
+        textSize(32);
+        text("Doodle Jump!", 200, 150);
+        textSize(16);
+        text("Press any key to start", 200, 200);
+        pop();
+    }
+
+    hide() {
+        push();
+        fill(100, 100, 100);
+        rect(0, 0, 400, 400);
+        pop();
+    }
+}
