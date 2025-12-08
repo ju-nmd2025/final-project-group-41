@@ -1,9 +1,10 @@
 import platform from "platform";
-import { Character } from "./character";
+import { Player } from "./player";
 import { StartScreen } from "./startscreen";
 
 function setup() {
   createCanvas(canvasWidth, canvasHeight);
+  frameRate(60);
 }
 
 // Obstacle / Spike / Death
@@ -17,9 +18,11 @@ function setup() {
 let canvasWidth = 400;
 let canvasHeight = 400;
 let floor = 350;
-let player = new Character(175, 300, 50, 50);
+let player = new Player(175, 300, 50, 50);
 let startScreen = new StartScreen();
 let gameState = "start";
+let frame = 0;
+const gravity = 1;
 
 function draw() {
   background(100, 100, 100);
@@ -30,15 +33,21 @@ function draw() {
       break;
     case "playing":
       startScreen.hide();
+      player.toggleJumping();
       playGame();
       break;
   }
 }
 
 function playGame() {
-  player.toggleJumping();
-  console.log(player.allowJumping);
+  frame++;
+  // player
+
   player.draw();
+  player.listenForInput();
+  calculatePlayerJump();
+
+  // platform
   platform.draw();
 
   //   platform.x -= 10; //moving platform
@@ -48,10 +57,10 @@ function playGame() {
     platform.x = 500;
   }
 
-  // Gravity
-  if (player.y + player.h < 350 && !player.isColliding(player, platform)) {
-    player.y += 10;
-  }
+  // // Gravity
+  // if (player.y + player.h < 350 && !player.isColliding(player, platform)) {
+  //   player.velocity = 0;
+  // }
 
   // Floor
   line(0, floor, canvasWidth, floor);
@@ -63,8 +72,28 @@ function listenForStart() {
   }
 }
 
-function keyPressed() {
-  if (player.y + player.h === floor || player.isColliding(player, platform)) {
-    player.y -= 120;
+// function keyPressed() {
+//   if (player.y + player.h === floor || player.isColliding(player, platform)) {
+//     player.y -= 120;
+//   }
+// }
+
+function calculatePlayerJump() {
+  // update player position based on velocity every frame for smooth movement
+  player.y += player.velocity;
+  // add gravity to velocity every sixth frame, to not make gravity too harsh
+  if (frame % 6 === 0) {
+    player.velocity += gravity;
+  }
+  // Apply gravity to velocity
+  if (player.isColliding(player, platform)) {
+    player.y = platform.y - player.h;
+    player.velocity = 0;
+  }
+
+  //if player is on the floor, reset position and velocity
+  if (player.y + player.h > floor) {
+    player.y = floor - player.h;
+    player.velocity = 0;
   }
 }
