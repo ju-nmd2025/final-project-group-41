@@ -2,28 +2,20 @@ import platform from "platform";
 import { Player } from "./player";
 import { StartScreen } from "./startscreen";
 
-function setup() {
-  createCanvas(canvasWidth, canvasHeight);
-  frameRate(60);
-}
-
-// Obstacle / Spike / Death
-// function drawObstacle() {
-//   push();
-//   fill("red");
-//   triangle(180, 300, 210, 240, 240, 300);
-//   pop();
-// }
-
 let canvasWidth = 400;
 let canvasHeight = 400;
 let floor = 350;
 let player = new Player(175, 300, 50, 50);
 let startScreen = new StartScreen();
-let gameState = "start";
+let gameState = "playing";
 let frame = 0;
 const gravity = 1;
 
+function setup() {
+  createCanvas(canvasWidth, canvasHeight);
+  frameRate(60);
+  player.toggleJumping();
+}
 function draw() {
   background(100, 100, 100);
   switch (gameState) {
@@ -33,7 +25,6 @@ function draw() {
       break;
     case "playing":
       startScreen.hide();
-      player.toggleJumping();
       playGame();
       break;
   }
@@ -44,24 +35,16 @@ function playGame() {
   // player
 
   player.draw();
+  player.jump();
   player.listenForInput();
   calculatePlayerJump();
-
-  // platform
+  calculatePlatformMovement();
   platform.draw();
-
-  //   platform.x -= 10; //moving platform
 
   //reset platform when out of screen
   if (platform.x + platform.w < 0) {
     platform.x = 500;
   }
-
-  // // Gravity
-  // if (player.y + player.h < 350 && !player.isColliding(player, platform)) {
-  //   player.velocity = 0;
-  // }
-
   // Floor
   line(0, floor, canvasWidth, floor);
 }
@@ -69,14 +52,19 @@ function playGame() {
 function listenForStart() {
   if (keyIsPressed) {
     gameState = "playing";
+    player.toggleJumping();
   }
 }
 
-// function keyPressed() {
-//   if (player.y + player.h === floor || player.isColliding(player, platform)) {
-//     player.y -= 120;
-//   }
-// }
+function calculatePlatformMovement() {
+  //move world down when player is above a certain height
+  if (player.y < 100) {
+    if (player.velocity < 0) {
+      platform.y -= player.velocity;
+      player.y = 100;
+    }
+  }
+}
 
 function calculatePlayerJump() {
   // update player position based on velocity every frame for smooth movement
@@ -87,6 +75,7 @@ function calculatePlayerJump() {
   }
   // Apply gravity to velocity
   if (player.isColliding(player, platform)) {
+    console.log("colliding with platform");
     player.y = platform.y - player.h;
     player.velocity = 0;
   }

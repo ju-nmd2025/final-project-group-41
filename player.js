@@ -17,17 +17,23 @@ export default class Player {
 
   draw() {
     rect(this.x, this.y, this.w, this.h);
+  }
+
+  jump() {
     if (this.allowJumping) {
       if (this.isColliding(this, platform) || this.y + this.h >= 350) {
         //jump if colliding with platform
+        console.log("jumping");
         this.velocity -= this.jumpStrength;
       }
     }
   }
 
   isColliding(player, platform) {
+    let playerBottom = player.y + player.h;
     if (
-      player.y + player.h === platform.y &&
+      playerBottom >= platform.y &&
+      playerBottom <= platform.y + platform.h &&
       player.x + player.w >= platform.x &&
       player.x <= platform.x + platform.w
     ) {
