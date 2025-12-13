@@ -1,4 +1,4 @@
-import platform from "platform";
+import platforms from "./platform";
 import { Player } from "./player";
 import { StartScreen } from "./startscreen";
 
@@ -41,37 +41,60 @@ function playGame() {
   calculatePlatformMovement();
   platform.draw();
 
-  //reset platform when out of screen
-  if (platform.x + platform.w < 0) {
-    platform.x = 500;
-  }
-  // Floor
-  line(0, floor, canvasWidth, floor);
-}
+  for (let platform of platforms) {
+    platform.draw();
 
-function listenForStart() {
-  if (keyIsPressed) {
-    gameState = "playing";
-    player.toggleJumping();
+    //reset platform when out of screen
+    if (platform.x + platform.w < 0) {
+      platform.x = 500;
+    }
+    // Floor
+    line(0, floor, canvasWidth, floor);
   }
-}
 
-function calculatePlatformMovement() {
-  //move world down when player is above a certain height
-  if (player.y < 100) {
-    if (player.velocity < 0) {
-      platform.y -= player.velocity;
-      player.y = 100;
+  function listenForStart() {
+    if (keyIsPressed) {
+      gameState = "playing";
+      player.toggleJumping();
     }
   }
-}
 
-function calculatePlayerJump() {
-  // update player position based on velocity every frame for smooth movement
-  player.y += player.velocity;
-  // add gravity to velocity every sixth frame, to not make gravity too harsh
-  if (frame % 6 === 0) {
-    player.velocity += gravity;
+  function calculatePlatformMovement() {
+    //move world down when player is above a certain height
+    if (player.y < 100) {
+      if (player.velocity < 0) {
+        let moveAmount = -player.velocity;
+        for (let platform of platforms) {
+          platform.y -= moveAmount;
+        }
+        Player.y = 100;
+      }
+    }
+  }
+
+  function calculatePlayerJump() {
+    // update player position based on velocity every frame for smooth movement
+    player.y += player.velocity;
+    // add gravity to velocity every sixth frame, to not make gravity too harsh
+    if (frame % 6 === 0) {
+      player.velocity += gravity;
+    }
+    //check collision with all platforms
+    let onplatfrom = false;
+    for (let platform of platforms) {
+      if (player.isColliding(player, platform)) {
+        console.log("colliding with platform");
+        player.y = platform.y - player.h;
+        player.velocity = 0;
+        onplatfrom = true;
+        break; //only one platform at the time
+      }
+    }
+    //floor collision
+    if (player.y + player.h > floor && !onplatfrom) {
+      player.y = floor - player.h;
+      player.velocity = 0;
+    }
   }
   // Apply gravity to velocity
   if (player.isColliding(player, platform)) {

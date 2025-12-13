@@ -1,4 +1,4 @@
-import platform from "platform";
+import platforms from "platforms";
 
 export default class Player {
   constructor(x, y, w, h) {
@@ -21,8 +21,14 @@ export default class Player {
 
   jump() {
     if (this.allowJumping) {
-      if (this.isColliding(this, platform) || this.y + this.h >= 350) {
-        //jump if colliding with platform
+      let onPlatform = false;
+      for(let platform of platforms){
+      if (this.isColliding(this, platform) {
+        onPlatform = true;
+        break;
+      }
+    }
+        if(onPlatform || this.y + this.h >= 350) {
         console.log("jumping");
         this.velocity -= this.jumpStrength;
       }
