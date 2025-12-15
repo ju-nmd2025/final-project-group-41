@@ -1,4 +1,4 @@
-export let platforms = {
+export let platform = {
   x: 160,
   y: 230,
   w: 80,
@@ -10,11 +10,11 @@ export let platforms = {
     rect(this.x, this.y, this.w, this.h);
     pop();
   },
-};
-{
-  x: 300,
-  y: 150,
-  w: 100,
+}
+export let platform2 = {
+  x: 160,
+  y: 230,
+  w: 80,
   h: 20,
   draw() {
     push();
@@ -23,7 +23,7 @@ export let platforms = {
     pop();
   }
 }
-{
+export let platform3 = {
   x:50,
   y:100,
   w:80,
