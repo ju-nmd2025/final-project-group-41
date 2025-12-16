@@ -2,16 +2,21 @@ import { Player } from "./player";
 import { StartScreen } from "./startscreen";
 import { Platform } from "./platform.js";
 
-let canvasWidth = 400;
-let canvasHeight = 400;
+//Global variables
+const canvasWidth = 400;
+const canvasHeight = 400;
 let floor = 350;
+let platformWidth = 80;
+let platformHeight = 20;
+let playerdefaultX = 175;
+let playerdefaultY = 300;
 let player = new Player(175, 300, 50, 50);
 let startScreen = new StartScreen();
 let gameState = "start";
 let frame = 0;
+let score = 100;
 // tuned physics
 const gravity = 1;
-player.jumpStrength = 10;
 let platforms = [];
 const desiredPlatformCount = 6;
 
@@ -24,37 +29,10 @@ function setup() {
     const w = 80;
     const h = 20;
     const x = Math.floor(Math.random() * (canvasWidth - w));
-    let y = Math.floor(Math.random() * (floor - 100));
-    for (let p in platforms) {
-      if (y > p.y && y < p.y + p.w) {
-        if (y + p.w > canvasWidth) {
-          y = y - p.h;
-        } else {
-          y = y + p.h;
-        }
-      }
-    }
-    platforms.push(new Platform(x, y, w, h));
+    let y = Math.floor(Math.random() * floor - 50);
+    platforms.push(makePlatform(x, y, w, h));
   }
   // give player the platforms and floor reference
-  player.setPlatforms(platforms);
-  player.setFloor(floor);
-}
-
-function generatePlatformY(max) {
-  let y = Math.floor(Math.random() * max);
-  for (let p in platforms) {
-    if (y > p.y && y < p.y + p.w) {
-      if (y + p.w > canvasWidth) {
-        y = y - p.h;
-        return y;
-      } else {
-        y = y + p.h;
-        return y;
-      }
-    }
-  }
-  return y;
 }
 
 function draw() {
@@ -68,6 +46,12 @@ function draw() {
       startScreen.hide();
       playGame();
       break;
+    case "end":
+      startScreen.showEndScreen();
+      player.allowJumping = false;
+      resetPositions();
+      listenForStart();
+      break;
   }
 }
 
@@ -75,24 +59,25 @@ function playGame() {
   frame++;
   // player
 
+  checkIfPlayerLost();
   player.draw();
+  player.jump();
   player.listenForInput();
   calculatePlayerJump();
-  calculatePlatformMovement();
+  calculateWorldMovement();
 
   for (let p of platforms) {
     p.draw();
     // simple horizontal movement to the left to simulate world scroll
-    p.x -= 0;
     // reset platform when out of screen
     if (p.x + p.w < 100) {
       // respawn the platform offscreen to the right so it scrolls into view
       p.x = canvasWidth + Math.floor(Math.random() * 100) + 150;
-      p.y = Math.floor(Math.random() * (floor - 100));
+      p.y = Math.floor(Math.random() * (canvasHeight - 100));
     }
-    // if platform moved below the floor, respawn above the view
-    if (p.y > floor) {
-      p.y = -Math.floor(Math.random() * 100) - 20;
+    // if platform moved below the screen, respawn above the view
+    if (p.y + p.h > canvasHeight) {
+      p.y = generateNonOverlappingY();
       p.x = Math.floor(Math.random() * (canvasWidth - p.w));
     }
     // enforce horizontal screen bounds so platforms never leave the visible area
@@ -101,33 +86,96 @@ function playGame() {
   }
 
   // ensure platforms keep appearing (add new ones if count drops)
-  while (platforms.length < desiredPlatformCount) {
-    const w = 60 + Math.floor(Math.random() * 80);
-    const h = 12 + Math.floor(Math.random() * 20);
-    const x = canvasWidth + Math.floor(Math.random() * 200);
-    const y = -Math.floor(Math.random() * 200);
-    platforms.push(makePlatform(x, y, w, h));
-    // keep player's platform reference updated
-    player.setPlatforms(platforms);
-  }
+  // while (platforms.length < desiredPlatformCount) {
+  //   const w = 60 + Math.floor(Math.random() * 100);
+  //   const h = 12 + Math.floor(Math.random() * 20);
+  //   const x = canvasWidth + Math.floor(Math.random() * 200);
+
+  //   let validY = false;
+  //   let y;
+  //   let attempts = 0;
+
+  //   //keep trying until we find a Y that doesn't overlap existing platforms
+  //   while (!validY && attempts < 30) {
+  //     y = canvasHeight + Math.floor(Math.random() * 200);
+  //     validY = true;
+  //     //Check vertical distance from all exesting platforms
+  //     for (const platform of platforms) {
+  //       // 40 pixels vertical gap
+  //       if (Math.abs(y - platform.y) < 65) {
+  //         validY = false;
+  //         break;
+  //       }
+  //     }
+
+  //     attempts++;
+  //   }
+  //   if (validY) {
+  //     platforms.push(makePlatform(x, y, w, h));
+  //     // keep player's platform reference updated
+  //   }
+  // }
 
   // Floor
   line(0, floor, canvasWidth, floor);
 }
 
+function generateNonOverlappingY() {
+  while (true) {
+    //generate random Y
+    let y = -Math.floor(Math.random() * 100) - platformHeight;
+    //assume no overlap
+    let overlapping = false;
+    //check against all existing platforms
+    for (let p of platforms) {
+      if (Math.abs(y - p.y) < 20) {
+        //if too close, try again
+        overlapping = true;
+        break;
+      }
+    }
+    //if no overlap, return Y
+    if (!overlapping) {
+      return y;
+    }
+  }
+}
+function generateNonOverlappingX() {
+  while (true) {
+    //generate random X
+    let x = Math.floor(Math.random() * (canvasWidth - platformWidth));
+    //assume no overlap
+    let overlapping = false;
+    //check against all existing platforms
+    for (let p of platforms) {
+      if (Math.abs(x - p.x) < 20) {
+        //if too close, try again
+        overlapping = true;
+        break;
+      }
+    }
+    //if no overlap, return X
+    if (!overlapping) {
+      return x;
+    }
+  }
+}
+
+function resetPositions() {
+  player.x = playerdefaultX;
+  player.y = playerdefaultY;
+  player.velocity = 0;
+  floor = 350;
+}
+
+function checkIfPlayerLost() {
+  if (player.y > canvasHeight && floor > canvasHeight) {
+    gameState = "end";
+  }
+}
+
 function makePlatform(x, y, w = 80, h = 20) {
-  return {
-    x,
-    y,
-    w,
-    h,
-    draw() {
-      push();
-      fill("green");
-      rect(this.x, this.y, this.w, this.h);
-      pop();
-    },
-  };
+  return new Platform(x, y, w, h);
 }
 
 function keyPressed() {
@@ -136,11 +184,6 @@ function keyPressed() {
     gameState = "playing";
     player.allowJumping = true;
     return;
-  }
-
-  // trigger jump on Up, W or Space
-  if (keyCode === UP_ARROW || key === " " || key === "w" || key === "W") {
-    player.attemptJump();
   }
 }
 
@@ -151,7 +194,7 @@ function listenForStart() {
   }
 }
 
-function calculatePlatformMovement() {
+function calculateWorldMovement() {
   // move world down when player is above a certain height
   if (player.y < 100) {
     if (player.velocity < 0) {
@@ -159,6 +202,7 @@ function calculatePlatformMovement() {
       for (let p of platforms) {
         // move platforms downward instead of upward
         p.y += moveAmount;
+        floor += moveAmount;
       }
       player.y = 100;
     }
@@ -172,23 +216,16 @@ function calculatePlayerJump() {
   if (frame % 6 === 0) {
     player.velocity += gravity;
   }
+
   // check collision with all platforms
   let onPlatform = false;
   for (let p of platforms) {
-    // only collide with platforms when player is falling (velocity >= 0)
     if (player.velocity >= 0 && player.isColliding(player, p)) {
       player.y = p.y - player.h;
       player.velocity = 0;
       onPlatform = true;
       break; // only one platform at a time
     }
-  }
-  // auto-jump: if standing on a platform or the floor and vertical velocity is zero, trigger a jump
-  if (
-    (onPlatform || player.y + player.h >= floor - 1) &&
-    player.velocity === 0
-  ) {
-    player.attemptJump();
   }
   // floor collision
   if (player.y + player.h > floor && !onPlatform) {

@@ -1,5 +1,5 @@
 export class Platform {
-  constructor(x, y, w, h, color) {
+  constructor(x, y, w, h) {
     this.x = x;
     this.y = y;
     this.w = w;
@@ -8,8 +8,12 @@ export class Platform {
 
   draw() {
     push();
-    fill("green");
+    fill("blue");
     rect(this.x, this.y, this.w, this.h);
     pop();
+  }
+
+  checkPlatformPosition() {
+    
   }
 }

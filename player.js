@@ -5,10 +5,8 @@ export class Player {
     this.w = w;
     this.h = h;
     this.allowJumping = false;
-    this.jumpStrength = 7;
+    this.jumpStrength = 10;
     this.velocity = 0;
-    this.platforms = [];
-    this.floor = 350;
   }
 
   toggleJumping() {
@@ -20,33 +18,26 @@ export class Player {
   }
 
   jump() {
-    // legacy: do nothing (jump is now triggered explicitly with `attemptJump`)
+    if (!this.allowJumping) return;
+    // If player is on a platform or the floor, allow jumping
+    if (this.isOnPlatform() || this.y + this.h >= floor) {
+      if (this.velocity >= 0) {
+        this.velocity -= this.jumpStrength;
+      }
+    }
   }
 
-  attemptJump() {
-    if (!this.allowJumping) return;
+  isOnPlatform() {
     let onPlatform = false;
-    if (this.platforms && this.platforms.length) {
-      for (let platform of this.platforms) {
+    if (platforms && platforms.length) {
+      for (let platform of platforms) {
         if (this.isColliding(this, platform)) {
           onPlatform = true;
-          break;
+          return onPlatform;
         }
       }
     }
-    const groundY = this.floor ?? 350;
-    // allow a small epsilon so standing on the floor/platform counts
-    if (onPlatform || this.y + this.h >= groundY - 1) {
-      this.velocity -= this.jumpStrength;
-    }
-  }
-
-  setPlatforms(platforms) {
-    this.platforms = platforms;
-  }
-
-  setFloor(y) {
-    this.floor = y;
+    return onPlatform;
   }
 
   isColliding(player, platform) {
