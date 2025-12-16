@@ -1,5 +1,6 @@
 import { Player } from "./player";
 import { StartScreen } from "./startscreen";
+import { Platform } from "./platform.js";
 
 let canvasWidth = 400;
 let canvasHeight = 400;
@@ -9,25 +10,10 @@ let startScreen = new StartScreen();
 let gameState = "start";
 let frame = 0;
 // tuned physics
-const gravity = 0.6;
-player.jumpStrength = 12;
+const gravity = 1;
+player.jumpStrength = 10;
 let platforms = [];
-const desiredPlatformCount = 10;
-
-function makePlatform(x, y, w = 80, h = 20) {
-  return {
-    x,
-    y,
-    w,
-    h,
-    draw() {
-      push();
-      fill("green");
-      rect(this.x, this.y, this.w, this.h);
-      pop();
-    },
-  };
-}
+const desiredPlatformCount = 6;
 
 function setup() {
   createCanvas(canvasWidth, canvasHeight);
@@ -38,13 +24,39 @@ function setup() {
     const w = 80;
     const h = 20;
     const x = Math.floor(Math.random() * (canvasWidth - w));
-    const y = Math.floor(Math.random() * (floor - 100));
-    platforms.push(makePlatform(x, y, w, h));
+    let y = Math.floor(Math.random() * (floor - 100));
+    for (let p in platforms) {
+      if (y > p.y && y < p.y + p.w) {
+        if (y + p.w > canvasWidth) {
+          y = y - p.h;
+        } else {
+          y = y + p.h;
+        }
+      }
+    }
+    platforms.push(new Platform(x, y, w, h));
   }
   // give player the platforms and floor reference
   player.setPlatforms(platforms);
   player.setFloor(floor);
 }
+
+function generatePlatformY(max) {
+  let y = Math.floor(Math.random() * max);
+  for (let p in platforms) {
+    if (y > p.y && y < p.y + p.w) {
+      if (y + p.w > canvasWidth) {
+        y = y - p.h;
+        return y;
+      } else {
+        y = y + p.h;
+        return y;
+      }
+    }
+  }
+  return y;
+}
+
 function draw() {
   background(100, 100, 100);
   switch (gameState) {
@@ -71,16 +83,16 @@ function playGame() {
   for (let p of platforms) {
     p.draw();
     // simple horizontal movement to the left to simulate world scroll
-    p.x -= 1.2;
+    p.x -= 0;
     // reset platform when out of screen
-    if (p.x + p.w < 0) {
+    if (p.x + p.w < 100) {
       // respawn the platform offscreen to the right so it scrolls into view
-      p.x = canvasWidth + Math.floor(Math.random() * 200) + 20;
+      p.x = canvasWidth + Math.floor(Math.random() * 100) + 150;
       p.y = Math.floor(Math.random() * (floor - 100));
     }
     // if platform moved below the floor, respawn above the view
     if (p.y > floor) {
-      p.y = -Math.floor(Math.random() * 160) - 20;
+      p.y = -Math.floor(Math.random() * 100) - 20;
       p.x = Math.floor(Math.random() * (canvasWidth - p.w));
     }
     // enforce horizontal screen bounds so platforms never leave the visible area
@@ -101,6 +113,21 @@ function playGame() {
 
   // Floor
   line(0, floor, canvasWidth, floor);
+}
+
+function makePlatform(x, y, w = 80, h = 20) {
+  return {
+    x,
+    y,
+    w,
+    h,
+    draw() {
+      push();
+      fill("green");
+      rect(this.x, this.y, this.w, this.h);
+      pop();
+    },
+  };
 }
 
 function keyPressed() {
