@@ -17,6 +17,10 @@ export class Player {
 
   draw() {
     rect(this.x, this.y, this.w, this.h);
+    // fill(0);
+    circle(this.x + this.w * 0.35, this.y + this.h * 0.35, 4);
+    circle(this.x + this.w * 0.65, this.y + this.h * 0.35, 4);
+    arc(this.x + this.w * 0.5, this.y + this.h * 0.6, 8, 6, 0, PI);
   }
 
   jump() {
