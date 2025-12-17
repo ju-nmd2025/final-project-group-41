@@ -5,6 +5,8 @@ import { Platform } from "./platform.js";
 //Global variables
 const canvasWidth = 400;
 const canvasHeight = 400;
+const breakingPlatformChance = 0.2;
+const movingPlatformChance = 0.3;
 let floor = 350;
 let platformWidth = 80;
 let platformHeight = 20;
@@ -68,39 +70,12 @@ function playGame() {
 
   for (let p of platforms) {
     p.draw();
-    // if platform moved below the screen, respawn above the view
-    if (p.y> canvasHeight) {
-      p.y = generateNonOverlappingY();
-      p.x = Math.floor(Math.random() * (canvasWidth - p.w));
-    }
-    // enforce horizontal screen bounds so platforms never leave the visible area
-    if (p.x < 0) p.x = 0;
-    if (p.x > canvasWidth - p.w) p.x = canvasWidth - p.w;
+    p.respawnIfOutOfView();
+    p.handleHorizontalBounds();
   }
 
   // Floor
   line(0, floor, canvasWidth, floor);
-}
-
-function generateNonOverlappingY() {
-  while (true) {
-    //generate random Y
-    let y = -Math.floor(Math.random() * 100) - platformHeight;
-    //assume no overlap
-    let overlapping = false;
-    //check against all existing platforms
-    for (let p of platforms) {
-      if (Math.abs(y - p.y) < 20) {
-        //if too close, try again
-        overlapping = true;
-        break;
-      }
-    }
-    //if no overlap, return Y
-    if (!overlapping) {
-      return y;
-    }
-  }
 }
 
 function resetPositions() {
