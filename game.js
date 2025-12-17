@@ -68,15 +68,8 @@ function playGame() {
 
   for (let p of platforms) {
     p.draw();
-    // simple horizontal movement to the left to simulate world scroll
-    // reset platform when out of screen
-    if (p.x + p.w < 100) {
-      // respawn the platform offscreen to the right so it scrolls into view
-      p.x = canvasWidth + Math.floor(Math.random() * 100) + 150;
-      p.y = Math.floor(Math.random() * (canvasHeight - 100));
-    }
     // if platform moved below the screen, respawn above the view
-    if (p.y + p.h > canvasHeight) {
+    if (p.y> canvasHeight) {
       p.y = generateNonOverlappingY();
       p.x = Math.floor(Math.random() * (canvasWidth - p.w));
     }
@@ -84,37 +77,6 @@ function playGame() {
     if (p.x < 0) p.x = 0;
     if (p.x > canvasWidth - p.w) p.x = canvasWidth - p.w;
   }
-
-  // ensure platforms keep appearing (add new ones if count drops)
-  // while (platforms.length < desiredPlatformCount) {
-  //   const w = 60 + Math.floor(Math.random() * 100);
-  //   const h = 12 + Math.floor(Math.random() * 20);
-  //   const x = canvasWidth + Math.floor(Math.random() * 200);
-
-  //   let validY = false;
-  //   let y;
-  //   let attempts = 0;
-
-  //   //keep trying until we find a Y that doesn't overlap existing platforms
-  //   while (!validY && attempts < 30) {
-  //     y = canvasHeight + Math.floor(Math.random() * 200);
-  //     validY = true;
-  //     //Check vertical distance from all exesting platforms
-  //     for (const platform of platforms) {
-  //       // 40 pixels vertical gap
-  //       if (Math.abs(y - platform.y) < 65) {
-  //         validY = false;
-  //         break;
-  //       }
-  //     }
-
-  //     attempts++;
-  //   }
-  //   if (validY) {
-  //     platforms.push(makePlatform(x, y, w, h));
-  //     // keep player's platform reference updated
-  //   }
-  // }
 
   // Floor
   line(0, floor, canvasWidth, floor);
@@ -137,26 +99,6 @@ function generateNonOverlappingY() {
     //if no overlap, return Y
     if (!overlapping) {
       return y;
-    }
-  }
-}
-function generateNonOverlappingX() {
-  while (true) {
-    //generate random X
-    let x = Math.floor(Math.random() * (canvasWidth - platformWidth));
-    //assume no overlap
-    let overlapping = false;
-    //check against all existing platforms
-    for (let p of platforms) {
-      if (Math.abs(x - p.x) < 20) {
-        //if too close, try again
-        overlapping = true;
-        break;
-      }
-    }
-    //if no overlap, return X
-    if (!overlapping) {
-      return x;
     }
   }
 }
