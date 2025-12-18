@@ -1,5 +1,5 @@
-import { Player } from "./player";
-import { StartScreen } from "./startscreen";
+import { Player } from "./player.js";
+import { StartScreen } from "./startscreen.js";
 import { Platform } from "./platform.js";
 
 //Global variables
@@ -16,7 +16,7 @@ let player = new Player(175, 300, 50, 50);
 let startScreen = new StartScreen();
 let gameState = "start";
 let frame = 0;
-let score = 100;
+let score = 0;
 // tuned physics
 const gravity = 1;
 let platforms = [];
@@ -49,7 +49,7 @@ function draw() {
       playGame();
       break;
     case "end":
-      startScreen.showEndScreen();
+      startScreen.showEndScreen(score);
       player.allowJumping = false;
       resetPositions();
       listenForStart();
@@ -76,6 +76,8 @@ function playGame() {
 
   // Floor
   line(0, floor, canvasWidth, floor);
+  // draw current score
+  drawScore();
 }
 
 function resetPositions() {
@@ -83,6 +85,16 @@ function resetPositions() {
   player.y = playerdefaultY;
   player.velocity = 0;
   floor = 350;
+  score = 0;
+}
+
+function drawScore() {
+  push();
+  fill("white");
+  textSize(16);
+  textAlign(LEFT, TOP);
+  text("Score: " + score, 10, 10);
+  pop();
 }
 
 function checkIfPlayerLost() {
@@ -138,6 +150,10 @@ function calculatePlayerJump() {
   let onPlatform = false;
   for (let p of platforms) {
     if (player.velocity >= 0 && player.isColliding(player, p)) {
+      // if player was falling onto the platform, count it as a landed jump
+      if (player.velocity > 0) {
+        score++;
+      }
       player.y = p.y - player.h;
       player.velocity = 0;
       onPlatform = true;
