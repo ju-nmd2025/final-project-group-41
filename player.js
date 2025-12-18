@@ -1,4 +1,4 @@
-import { platforms } from "./game.js";
+import { platforms, floor } from "./game.js";
 export default class Player {
   constructor(x, y, w, h) {
     this.x = x;

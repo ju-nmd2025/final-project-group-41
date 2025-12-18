@@ -1,6 +1,6 @@
-import { Player } from "./player.js";
-import { StartScreen } from "./startscreen.js";
-import { Platform } from "./platform.js";
+import Player from "./player.js";
+import StartScreen from "./startscreen.js";
+import Platform from "./platform.js";
 
 //Global variables
 const canvasWidth = 400;
