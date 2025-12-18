@@ -25,7 +25,6 @@ const desiredPlatformCount = 6;
 function setup() {
   createCanvas(canvasWidth, canvasHeight);
   frameRate(60);
-  // do not enable jumping until the player actually starts the game
   // generate initial platforms
   for (let i = 0; i < desiredPlatformCount; i++) {
     const w = 80;
@@ -51,7 +50,6 @@ function draw() {
     case "end":
       startScreen.showEndScreen(score);
       player.allowJumping = false;
-      resetPositions();
       listenForStart();
       break;
   }
@@ -96,6 +94,7 @@ function drawScore() {
   text("Score: " + score, 10, 10);
   pop();
 }
+function spawnPlatforms() {}
 
 function checkIfPlayerLost() {
   if (player.y > canvasHeight && floor > canvasHeight) {
@@ -118,6 +117,7 @@ function keyPressed() {
 
 function listenForStart() {
   if (keyIsPressed) {
+    resetPositions();
     gameState = "playing";
     player.allowJumping = true;
   }
