@@ -1,4 +1,4 @@
-export class StartScreen {
+export default class StartScreen {
   show() {
     push();
     fill("white");
