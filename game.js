@@ -8,7 +8,6 @@ const gravity = 1;
 const desiredPlatformCount = 6;
 let playerdefaultX = 175;
 let playerdefaultY = 300;
-let gameStateValue = "start";
 let frame = 0;
 
 // Initialize player and startScreen after setup
