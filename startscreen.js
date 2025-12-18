@@ -1,4 +1,4 @@
-import { score } from "./game.js";
+import { gameState } from "./gameState.js";
 
 export default class StartScreen {
   show() {
@@ -26,7 +26,7 @@ export default class StartScreen {
     textSize(32);
     text("Game Over!", 200, 150);
     textSize(16);
-    text("Score: " + score, 200, 180);
+    text("Score: " + gameState.score, 200, 180);
     text("Press Space to restart", 200, 220);
     pop();
   }

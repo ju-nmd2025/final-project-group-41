@@ -1,4 +1,5 @@
-import { platforms, floor } from "./game.js";
+import { gameState } from "./gameState.js";
+
 export default class Player {
   constructor(x, y, w, h) {
     this.x = x;
@@ -24,7 +25,7 @@ export default class Player {
   jump() {
     if (!this.allowJumping) return;
     // If player is on a platform or the floor, allow jumping
-    if (this.isOnPlatform() || this.y + this.h >= floor) {
+    if (this.isOnPlatform() || this.y + this.h >= gameState.floor) {
       if (this.velocity >= 0) {
         this.velocity -= this.jumpStrength;
       }
@@ -33,8 +34,8 @@ export default class Player {
 
   isOnPlatform() {
     let onPlatform = false;
-    if (platforms && platforms.length) {
-      for (let platform of platforms) {
+    if (gameState.platforms && gameState.platforms.length) {
+      for (let platform of gameState.platforms) {
         if (this.isColliding(this, platform)) {
           if (platform.isBreaking && this.velocity >= 0) {
             platform.isBroken = true;

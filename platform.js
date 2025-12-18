@@ -1,4 +1,4 @@
-import { canvasWidth, canvasHeight, platformHeight } from "./game.js";
+import { gameState } from "./gameState.js";
 
 export default class Platform {
   constructor(x, y, w, h) {
@@ -58,10 +58,10 @@ export default class Platform {
 
   respawnIfOutOfView() {
     // if platform moved below the screen, respawn above the view
-    if (this.y > canvasHeight) {
+    if (this.y > gameState.canvasHeight) {
       this.resetType();
       this.y = this.#generateNonOverlappingY();
-      this.x = Math.floor(Math.random() * (canvasWidth - this.w));
+      this.x = Math.floor(Math.random() * (gameState.canvasWidth - this.w));
       if (Math.random() < this.movingPlatformChance) {
         this.isMoving = true;
         if (Math.random() < 0.5) {
@@ -81,8 +81,8 @@ export default class Platform {
       this.changeDirection();
       this.x = 0;
     }
-    if (this.x > canvasWidth - this.w) {
-      this.x = canvasWidth - this.w;
+    if (this.x > gameState.canvasWidth - this.w) {
+      this.x = gameState.canvasWidth - this.w;
       this.changeDirection();
     }
   }
@@ -90,11 +90,11 @@ export default class Platform {
   #generateNonOverlappingY() {
     while (true) {
       //generate random Y
-      let y = -Math.floor(Math.random() * 100) - platformHeight;
+      let y = -Math.floor(Math.random() * 100) - gameState.platformHeight;
       //assume no overlap
       let overlapping = false;
       //check against all existing platforms
-      for (let p of platforms) {
+      for (let p of gameState.platforms) {
         if (Math.abs(y - p.y) < 20) {
           //if too close, try again
           overlapping = true;

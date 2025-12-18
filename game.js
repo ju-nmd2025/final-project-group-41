@@ -1,69 +1,57 @@
+import { gameState } from "./gameState.js";
 import Player from "./player.js";
 import StartScreen from "./startscreen.js";
 import Platform from "./platform.js";
 
 //Global variables
-const canvasWidth = 400;
-const canvasHeight = 400;
 const gravity = 1;
 const desiredPlatformCount = 6;
-let floor = 350;
-let platformWidth = 80;
-let platformHeight = 20;
 let playerdefaultX = 175;
 let playerdefaultY = 300;
-let player = new Player(175, 300, 50, 50);
-let startScreen = new StartScreen();
-let gameState = "start";
+let gameStateValue = "start";
 let frame = 0;
-let score = 0;
-let platforms = [];
-export {
-  platforms,
-  score,
-  floor,
-  canvasHeight,
-  canvasWidth,
-  platformHeight,
-  platformWidth,
-  player,
-};
+
+// Initialize player and startScreen after setup
+let player;
+let startScreen;
 
 function setup() {
-  createCanvas(canvasWidth, canvasHeight);
+  gameState.player = new Player(175, 300, 50, 50);
+  gameState.startScreen = new StartScreen();
+  createCanvas(gameState.canvasWidth, gameState.canvasHeight);
   frameRate(60);
   generateStartingPlatforms();
 }
 function generateStartingPlatforms() {
   // generate initial platforms
   for (let i = 0; i < desiredPlatformCount; i++) {
-    const w = platformWidth;
-    const h = platformHeight;
-    const x = Math.floor(Math.random() * (canvasWidth - w));
-    let y = Math.floor(Math.random() * floor - 50);
-    for (let p of platforms) {
-      if (Math.abs(y - p.y) < platformHeight) {
-        y += platformHeight;
+    const w = gameState.platformWidth;
+    const h = gameState.platformHeight;
+    const x = Math.floor(Math.random() * (gameState.canvasWidth - w));
+    let y = Math.floor(Math.random() * gameState.floor - 50);
+    for (let p of gameState.platforms) {
+      if (Math.abs(y - p.y) < gameState.platformHeight) {
+        y += gameState.platformHeight;
       }
     }
-    platforms.push(makePlatform(x, y, w, h));
+    gameState.platforms.push(makePlatform(x, y, w, h));
   }
 }
 
 function draw() {
   background(100, 100, 100);
-  switch (gameState) {
+  switch (gameState.state) {
     case "start":
-      startScreen.show();
+      gameState.startScreen.show();
       listenForStart();
       break;
     case "playing":
-      startScreen.hide();
+      gameState.startScreen.hide();
       playGame();
       break;
     case "end":
-      startScreen.showEndScreen(score);
-      player.allowJumping = false;
+      gameState.startScreen.showEndScreen(gameState.score);
+      gameState.player.allowJumping = false;
       listenForStart();
       break;
   }
@@ -72,31 +60,31 @@ function draw() {
 function playGame() {
   frame++;
   checkIfPlayerLost();
-  player.draw();
-  player.jump();
-  player.listenForInput();
+  gameState.player.draw();
+  gameState.player.jump();
+  gameState.player.listenForInput();
   calculatePlayerJump();
   calculateWorldMovement();
 
-  for (let p of platforms) {
+  for (let p of gameState.platforms) {
     p.draw();
     p.respawnIfOutOfView();
     p.handleHorizontalBounds();
   }
 
   // Floor
-  line(0, floor, canvasWidth, floor);
+  line(0, gameState.floor, gameState.canvasWidth, gameState.floor);
   // draw current score
   drawScore();
 }
 
 function resetPositions() {
-  player.x = playerdefaultX;
-  player.y = playerdefaultY;
-  player.velocity = 0;
-  floor = 350;
-  score = 0;
-  platforms = [];
+  gameState.player.x = playerdefaultX;
+  gameState.player.y = playerdefaultY;
+  gameState.player.velocity = 0;
+  gameState.floor = 350;
+  gameState.score = 0;
+  gameState.platforms = [];
   generateStartingPlatforms();
 }
 
@@ -105,13 +93,13 @@ function drawScore() {
   fill("white");
   textSize(16);
   textAlign(LEFT, TOP);
-  text("Score: " + score, 10, 10);
+  text("Score: " + gameState.score, 10, 10);
   pop();
 }
 
 function checkIfPlayerLost() {
-  if (player.y > canvasHeight && floor > canvasHeight) {
-    gameState = "end";
+  if (gameState.player.y > gameState.canvasHeight && gameState.floor > gameState.canvasHeight) {
+    gameState.state = "end";
   }
 }
 
@@ -122,52 +110,52 @@ function makePlatform(x, y, w, h) {
 function listenForStart() {
   if (keyIsPressed && key === " ") {
     resetPositions();
-    gameState = "playing";
-    player.allowJumping = true;
+    gameState.state = "playing";
+    gameState.player.allowJumping = true;
   }
 }
 
 function calculateWorldMovement() {
   // move world down when player is above a certain height
-  if (player.y < 100) {
-    if (player.velocity < 0) {
-      let moveAmount = -player.velocity;
-      for (let p of platforms) {
+  if (gameState.player.y < 100) {
+    if (gameState.player.velocity < 0) {
+      let moveAmount = -gameState.player.velocity;
+      for (let p of gameState.platforms) {
         // move platforms downward instead of upward
         p.y += moveAmount;
-        floor += moveAmount;
+        gameState.floor += moveAmount;
       }
-      player.y = 100;
+      gameState.player.y = 100;
     }
   }
 }
 
 function calculatePlayerJump() {
   // update player position based on velocity every frame for smooth movement
-  player.y += player.velocity;
+  gameState.player.y += gameState.player.velocity;
   // add gravity to velocity every sixth frame, to not make gravity too harsh
   if (frame % 6 === 0) {
-    player.velocity += gravity;
+    gameState.player.velocity += gravity;
   }
 
   // check collision with all platforms
   let onPlatform = false;
-  for (let p of platforms) {
-    if (player.velocity >= 0 && player.isColliding(player, p)) {
+  for (let p of gameState.platforms) {
+    if (gameState.player.velocity >= 0 && gameState.player.isColliding(gameState.player, p)) {
       // if player was falling onto the platform, count it as a landed jump
-      if (player.velocity > 0) {
-        score++;
+      if (gameState.player.velocity > 0) {
+        gameState.score++;
       }
-      player.y = p.y - player.h;
-      player.velocity = 0;
+      gameState.player.y = p.y - gameState.player.h;
+      gameState.player.velocity = 0;
       onPlatform = true;
       break; // only one platform at a time
     }
   }
   // floor collision
-  if (player.y + player.h > floor && !onPlatform) {
-    player.y = floor - player.h;
-    player.velocity = 0;
+  if (gameState.player.y + gameState.player.h > gameState.floor && !onPlatform) {
+    gameState.player.y = gameState.floor - gameState.player.h;
+    gameState.player.velocity = 0;
   }
 }
 
