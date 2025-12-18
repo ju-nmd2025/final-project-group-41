@@ -86,6 +86,8 @@ function resetPositions() {
   player.velocity = 0;
   floor = 350;
   score = 0;
+  platforms = [];
+  generateStartingPlatforms();
 }
 
 function drawScore() {
