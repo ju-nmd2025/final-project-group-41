@@ -7,6 +7,8 @@ const canvasWidth = 400;
 const canvasHeight = 400;
 const breakingPlatformChance = 0.2;
 const movingPlatformChance = 0.3;
+const gravity = 1;
+const desiredPlatformCount = 6;
 let floor = 350;
 let platformWidth = 80;
 let platformHeight = 20;
@@ -17,14 +19,15 @@ let startScreen = new StartScreen();
 let gameState = "start";
 let frame = 0;
 let score = 0;
-// tuned physics
-const gravity = 1;
 let platforms = [];
-const desiredPlatformCount = 6;
+
 
 function setup() {
   createCanvas(canvasWidth, canvasHeight);
   frameRate(60);
+  generateStartingPlatforms();
+}
+function generateStartingPlatforms() {
   // generate initial platforms
   for (let i = 0; i < desiredPlatformCount; i++) {
     const w = 80;
@@ -33,7 +36,6 @@ function setup() {
     let y = Math.floor(Math.random() * floor - 50);
     platforms.push(makePlatform(x, y, w, h));
   }
-  // give player the platforms and floor reference
 }
 
 function draw() {
