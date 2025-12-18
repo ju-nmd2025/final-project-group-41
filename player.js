@@ -35,7 +35,7 @@ export class Player {
     if (platforms && platforms.length) {
       for (let platform of platforms) {
         if (this.isColliding(this, platform)) {
-          if(platform.isBreaking && this.velocity >= 0) {
+          if (platform.isBreaking && this.velocity >= 0) {
             platform.isBroken = true;
           }
           onPlatform = true;
@@ -71,3 +71,5 @@ export class Player {
     }
   }
 }
+
+export { Player };

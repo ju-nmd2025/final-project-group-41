@@ -12,7 +12,7 @@ export class Platform {
 
   draw() {
     if (this.isBreaking) {
-      if(this.isBroken) {
+      if (this.isBroken) {
         this.y += 7; //fall down if broken
       }
       push();
@@ -104,3 +104,4 @@ export class Platform {
     }
   }
 }
+export { Platform };

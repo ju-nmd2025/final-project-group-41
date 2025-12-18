@@ -21,7 +21,6 @@ let frame = 0;
 let score = 0;
 let platforms = [];
 
-
 function setup() {
   createCanvas(canvasWidth, canvasHeight);
   frameRate(60);
@@ -34,6 +33,11 @@ function generateStartingPlatforms() {
     const h = 20;
     const x = Math.floor(Math.random() * (canvasWidth - w));
     let y = Math.floor(Math.random() * floor - 50);
+    for (let p of platforms) {
+      if (Math.abs(y - p.y) < 20) {
+        y += 20;
+      }
+    }
     platforms.push(makePlatform(x, y, w, h));
   }
 }
@@ -59,8 +63,6 @@ function draw() {
 
 function playGame() {
   frame++;
-  // player
-
   checkIfPlayerLost();
   player.draw();
   player.jump();
@@ -98,7 +100,6 @@ function drawScore() {
   text("Score: " + score, 10, 10);
   pop();
 }
-function spawnPlatforms() {}
 
 function checkIfPlayerLost() {
   if (player.y > canvasHeight && floor > canvasHeight) {
@@ -110,17 +111,8 @@ function makePlatform(x, y, w = 80, h = 20) {
   return new Platform(x, y, w, h);
 }
 
-function keyPressed() {
-  // start the game from start screen or trigger jump during play
-  if (gameState !== "playing") {
-    gameState = "playing";
-    player.allowJumping = true;
-    return;
-  }
-}
-
 function listenForStart() {
-  if (keyIsPressed) {
+  if (keyIsPressed && key === " ") {
     resetPositions();
     gameState = "playing";
     player.allowJumping = true;
@@ -174,4 +166,3 @@ function calculatePlayerJump() {
 // p5 in global mode requires these functions on the window object when using modules
 window.setup = setup;
 window.draw = draw;
-window.keyPressed = keyPressed;

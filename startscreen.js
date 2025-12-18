@@ -6,7 +6,7 @@ export class StartScreen {
     textSize(32);
     text("Doodle Jump!", 200, 150);
     textSize(16);
-    text("Press any key to start", 200, 200);
+    text("Press Space to start", 200, 200);
     pop();
   }
 
@@ -25,7 +25,8 @@ export class StartScreen {
     text("Game Over!", 200, 150);
     textSize(16);
     text("Score: " + score, 200, 180);
-    text("Press any key to restart", 200, 220);
+    text("Press Space to restart", 200, 220);
     pop();
   }
 }
+export { StartScreen };
