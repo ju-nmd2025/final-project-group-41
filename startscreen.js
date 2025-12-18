@@ -1,3 +1,5 @@
+import { score } from "./game.js";
+
 export default class StartScreen {
   show() {
     push();

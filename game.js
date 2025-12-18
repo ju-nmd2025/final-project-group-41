@@ -5,8 +5,6 @@ import { Platform } from "./platform.js";
 //Global variables
 const canvasWidth = 400;
 const canvasHeight = 400;
-const breakingPlatformChance = 0.2;
-const movingPlatformChance = 0.3;
 const gravity = 1;
 const desiredPlatformCount = 6;
 let floor = 350;
@@ -20,6 +18,16 @@ let gameState = "start";
 let frame = 0;
 let score = 0;
 let platforms = [];
+export {
+  platforms,
+  score,
+  floor,
+  canvasHeight,
+  canvasWidth,
+  platformHeight,
+  platformWidth,
+  player,
+};
 
 function setup() {
   createCanvas(canvasWidth, canvasHeight);
@@ -29,13 +37,13 @@ function setup() {
 function generateStartingPlatforms() {
   // generate initial platforms
   for (let i = 0; i < desiredPlatformCount; i++) {
-    const w = 80;
-    const h = 20;
+    const w = platformWidth;
+    const h = platformHeight;
     const x = Math.floor(Math.random() * (canvasWidth - w));
     let y = Math.floor(Math.random() * floor - 50);
     for (let p of platforms) {
-      if (Math.abs(y - p.y) < 20) {
-        y += 20;
+      if (Math.abs(y - p.y) < platformHeight) {
+        y += platformHeight;
       }
     }
     platforms.push(makePlatform(x, y, w, h));
@@ -107,7 +115,7 @@ function checkIfPlayerLost() {
   }
 }
 
-function makePlatform(x, y, w = 80, h = 20) {
+function makePlatform(x, y, w, h) {
   return new Platform(x, y, w, h);
 }
 

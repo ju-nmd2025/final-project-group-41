@@ -1,3 +1,5 @@
+import { canvasWidth, canvasHeight, platformHeight } from "./game.js";
+
 export default class Platform {
   constructor(x, y, w, h) {
     this.x = x;
@@ -8,6 +10,8 @@ export default class Platform {
     this.isBreaking = false;
     this.direction = 0;
     this.isBroken = false;
+    this.movingPlatformChance = 0.3;
+    this.breakingPlatformChance = 0.2;
   }
 
   draw() {
@@ -58,14 +62,14 @@ export default class Platform {
       this.resetType();
       this.y = this.#generateNonOverlappingY();
       this.x = Math.floor(Math.random() * (canvasWidth - this.w));
-      if (Math.random() < movingPlatformChance) {
+      if (Math.random() < this.movingPlatformChance) {
         this.isMoving = true;
         if (Math.random() < 0.5) {
           this.direction = 1;
         } else {
           this.direction = -1;
         }
-      } else if (Math.random() < breakingPlatformChance) {
+      } else if (Math.random() < this.breakingPlatformChance) {
         this.isBreaking = true;
       }
     }
